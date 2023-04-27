@@ -3,11 +3,12 @@ import yfinance as yf
 import pandas as pd
 from datetime import date
 from fbprophet import Prophet
-from fbprophet.plot import plot, plot_components
+from fbprophet.plot import plot_plotly, plot_components_plotly
 from plotly import graph_objs as go
+from functools import lru_cache
 
 
-DATA_INICIO = '2023-01-01'
+DATA_INICIO = '2014-01-01'
 DATA_FIM = date.today().strftime('%Y-%m-%d')
 
 st.title('Análise de Ações')
@@ -22,6 +23,8 @@ n_dias = st.slider('Quantidade de dias de previsão', 30, 365)
 
 #Create function to get action name, ticket. Concanete name + ticket
 
+@st.cache_data
+@lru_cache
 def pegar_dados_acoes():
     path = '/Users/juliodantas/PycharmProjects/testeprophet/acoes.csv'
     return pd.read_csv(path, delimiter=';')
@@ -36,6 +39,7 @@ acao_escolhida = df_acao.iloc[0]['sigla_acao']
 acao_escolhida = acao_escolhida + '.SA'
 
 @st.cache_data
+@lru_cache
 def pegar_valores_online(sigla_acao):
     df = yf.download(sigla_acao, DATA_INICIO, DATA_FIM)
     df.reset_index(inplace=True)
@@ -69,7 +73,7 @@ df_treino = df_valores[['Date', 'Close']]
 
 df_treino = df_treino.rename(columns = {"Date": 'ds', 'Close': 'y'})
 
-modelo = Prophet()
+modelo = Prophet(seasonality_mode='multiplicative')
 modelo.fit(df_treino)
 
 futuro = modelo.make_future_dataframe(periods=n_dias, freq='B')
@@ -77,3 +81,10 @@ previsao = modelo.predict(futuro)
 
 st.subheader('Previsao')
 st.write(previsao[['ds','yhat','yhat_lower','yhat_upper']].tail(n_dias))
+
+
+grafico1 = plot_plotly(modelo, previsao)
+st.plotly_chart(grafico1)
+
+grafico2 = plot_components_plotly(modelo, previsao)
+st.plotly_chart(grafico2)
