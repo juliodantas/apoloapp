@@ -1,4 +1,3 @@
 yfinance
 Prophet
-fbprophet
 pystan
