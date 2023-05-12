@@ -1,5 +1,5 @@
 yfinance
 Prophet
 fbprophet==0.7.1
-pystan~=2.14
+pystan==2.14
 
