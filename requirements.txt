@@ -5,6 +5,3 @@ fbprophet==0.7.1
 plotly==4.14.3
 pystan==2.19.1.1
 yfinance
-build-essential
-python3-dev
-
